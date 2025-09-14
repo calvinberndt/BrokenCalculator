@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import java.util.List;
 
 public class Calculator extends AppCompatActivity {
 
@@ -47,8 +48,9 @@ public class Calculator extends AppCompatActivity {
     }
 
     private void insertNumber(int num) {
+        // Handle leading zeros
         if (currentValue.equals("0") && num == 0) {
-            // Ignore leading zeros
+            // Ignore additional zeros if we already have a zero
             return;
         } else if (currentValue.equals("0")) {
             // Replace leading zero with the new number
@@ -56,6 +58,7 @@ public class Calculator extends AppCompatActivity {
         } else {
             currentValue = currentValue + Integer.toString(num);
         }
+        // Update the display to show the current expression plus the current value being entered
         updateDisplayOnScreen(displayString + currentValue);
     }
 
@@ -104,43 +107,76 @@ public class Calculator extends AppCompatActivity {
     }
 
     public void onAdd(View view) {
-        lastValue = currentValue;
-        displayString = String.format("%s%s + ", displayString, lastValue);
-        updateDisplayOnScreen(displayString);
-        currentValue = "";
-        operation = "add";
+        if (currentValue.length() > 0) {
+            displayString = displayString + currentValue + " + ";
+            updateDisplayOnScreen(displayString);
+            currentValue = "";
+        }
     }
 
     public void onSubtract(View view) {
-        lastValue = currentValue;
-        displayString = String.format("%s%s - ", displayString, lastValue);
-        updateDisplayOnScreen(displayString);
-        currentValue = "";
-        operation = "subtract";
+        if (currentValue.length() > 0) {
+            displayString = displayString + currentValue + " - ";
+            updateDisplayOnScreen(displayString);
+            currentValue = "";
+        }
     }
 
     public void onMultiply(View view) {
-        lastValue = currentValue;
-        displayString = String.format("%s%s * ", displayString, lastValue);
-        updateDisplayOnScreen(displayString);
-        currentValue = "";
-        operation = "multiply";
+        if (currentValue.length() > 0) {
+            displayString = displayString + currentValue + " * ";
+            updateDisplayOnScreen(displayString);
+            currentValue = "";
+        }
     }
 
     public void onDivide(View view) {
-        lastValue = currentValue;
-        displayString = String.format("%s%s / ", displayString, lastValue);
-        updateDisplayOnScreen(displayString);
-        currentValue = "";
-        operation = "divider";
+        if (currentValue.length() > 0) {
+            displayString = displayString + currentValue + " / ";
+            updateDisplayOnScreen(displayString);
+            currentValue = "";
+        }
     }
 
     public void onEquals(View view) {
-        if(lastValue.length() > 0 && currentValue.length() > 0) {
-            String expressionToEvaluate;
-            expressionToEvaluate = displayView.getText().toString();
-
-
+        // Add current value to complete the expression
+        if (currentValue.length() > 0) {
+            displayString = displayString + currentValue;
+        }
+        
+        // Get the complete expression
+        String expressionToEvaluate = displayString.trim();
+        
+        if (expressionToEvaluate.length() > 0) {
+            try {
+                // Tokenize the expression
+                List<String> tokens = shuntingYardConverter.tokenize(expressionToEvaluate);
+                
+                // Convert to postfix notation
+                List<String> postfixTokens = shuntingYardConverter.infixToPostfix(tokens);
+                
+                // Evaluate the postfix expression
+                double result = postfixEvaluator.evaluate(postfixTokens);
+                
+                // Display the result
+                String resultStr = formatResult(result);
+                updateDisplayOnScreen(resultStr);
+                
+                // Reset for next calculation
+                displayString = "";
+                currentValue = resultStr;
+                lastValue = "";
+                operation = "";
+                
+            } catch (ArithmeticException e) {
+                // Handle division by zero
+                updateDisplayOnScreen("Error: Division by zero");
+                resetCalculator();
+            } catch (Exception e) {
+                // Handle any other errors
+                updateDisplayOnScreen("Error");
+                resetCalculator();
+            }
         }
     }
 
@@ -150,5 +186,21 @@ public class Calculator extends AppCompatActivity {
         lastValue = "";
         displayString = "";
         updateDisplayOnScreen("0");
+    }
+
+    private void resetCalculator() {
+        operation = "";
+        currentValue = "";
+        lastValue = "";
+        displayString = "";
+    }
+    
+    private String formatResult(double result) {
+        // If the result is a whole number, display it without decimals
+        if (result == Math.floor(result) && !Double.isInfinite(result)) {
+            return String.valueOf((int) result);
+        } else {
+            return String.valueOf(result);
+        }
     }
 }
