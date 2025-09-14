@@ -7,20 +7,10 @@ import android.widget.TextView;
 import java.util.List;
 
 public class Calculator extends AppCompatActivity {
-
-    /*
-    There are errors in this code, that will cause various issues
-    Your goal is to get the calculator working as good as possible
-    1. Make sure all Numbers input the proper numbers
-    2. Make sure the proper operation is applied when = is hit
-    3. Think about as many edge cases as you can, can you break the calculator and then fix it?
-    4. Can you make it ignore leading 0's if a bunch of 0's are pressed?
-    5. BONUS: Can you get the current operation to display somewhere?
-     */
+    //This calculator uses Polish Notation (Shunting Yard Algorithm)
+    //to convert infix expressions to postfix expressions for evaluation.
 
     private String currentValue = "";
-    private String lastValue = "";
-    private String operation = "";
 
     //String that accumulates on the display
     private String displayString = "";
@@ -165,8 +155,6 @@ public class Calculator extends AppCompatActivity {
                 // Reset for next calculation
                 displayString = "";
                 currentValue = resultStr;
-                lastValue = "";
-                operation = "";
                 
             } catch (ArithmeticException e) {
                 // Handle division by zero
@@ -181,17 +169,13 @@ public class Calculator extends AppCompatActivity {
     }
 
     public void onClear(View view) {
-        operation = "";
         currentValue = "";
-        lastValue = "";
         displayString = "";
         updateDisplayOnScreen("0");
     }
 
     private void resetCalculator() {
-        operation = "";
         currentValue = "";
-        lastValue = "";
         displayString = "";
     }
     
