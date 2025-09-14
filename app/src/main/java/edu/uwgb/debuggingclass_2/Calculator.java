@@ -1,6 +1,6 @@
 package edu.uwgb.debuggingclass_2;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -21,6 +21,8 @@ public class Calculator extends AppCompatActivity {
     private String lastValue = "";
     private String operation = "";
 
+    private String displayString = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +31,7 @@ public class Calculator extends AppCompatActivity {
 
     private void insertNumber(int num) {
         currentValue = currentValue + Integer.toString(num);
-        setDisplay(currentValue);
+        setDisplay(displayString + currentValue);
     }
 
     private void setDisplay(String str) {
@@ -42,7 +44,7 @@ public class Calculator extends AppCompatActivity {
     }
 
     public void onNum2(View view) {
-        insertNumber(4);
+        insertNumber(2);
     }
 
     public void onNum3(View view) {
@@ -66,7 +68,7 @@ public class Calculator extends AppCompatActivity {
     }
 
     public void onNum8(View view) {
-        insertNumber(0);
+        insertNumber(8);
     }
 
     public void onNum9(View view) {
@@ -79,21 +81,31 @@ public class Calculator extends AppCompatActivity {
 
     public void onAdd(View view) {
         lastValue = currentValue;
+        displayString = String.format("%s %s + ", displayString, lastValue);
+        setDisplay(displayString);
+        currentValue = "";
         operation = "add";
     }
 
     public void onSubtract(View view) {
         lastValue = currentValue;
+        displayString = String.format("%s %s - ", displayString, lastValue);
+        setDisplay(displayString);
+        currentValue = "";
         operation = "subtract";
     }
 
     public void onMultiply(View view) {
         lastValue = currentValue;
+        displayString = String.format("%s %s * ", displayString, lastValue);
+        setDisplay(displayString);
         operation = "multiply";
     }
 
     public void onDivide(View view) {
         lastValue = currentValue;
+        displayString = String.format("%s %s / ", displayString, lastValue);
+        setDisplay(displayString);
         operation = "divide";
     }
 
@@ -108,15 +120,17 @@ public class Calculator extends AppCompatActivity {
                     newValue = val1 + val2;
                     break;
                 case "subtract":
-                    newValue = val1 + val2;
+                    newValue = val1 - val2;
                     break;
                 case "multiply":
-                    newValue = val1 / val2;
+                    newValue = val1 * val2;
                     break;
                 case "divider":
                     newValue = val1 / val2;
             }
-            setDisplay(Integer.toString(newValue));
+            displayString = (Integer.toString(newValue));
+            currentValue = displayString;
+            setDisplay(displayString);
         }
     }
 
@@ -124,5 +138,7 @@ public class Calculator extends AppCompatActivity {
         operation = "";
         currentValue = "";
         lastValue = "";
+        displayString = "";
+        setDisplay("0");
     }
 }
