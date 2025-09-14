@@ -21,22 +21,46 @@ public class Calculator extends AppCompatActivity {
     private String lastValue = "";
     private String operation = "";
 
+    //String that accumulates on the display
     private String displayString = "";
+
+    //Instaces of helper classes
+    private ShuntingYardConverter shuntingYardConverter;
+    private PostfixEvaluator postfixEvaluator;
+    
+    //TextView to display the current value
+    private TextView displayView;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
+        
+        //Link displayView to the proper view
+        displayView = findViewById(R.id.displayValue);
+        
+        //Initialize helper class instances
+        shuntingYardConverter = new ShuntingYardConverter();
+        postfixEvaluator = new PostfixEvaluator();
     }
 
     private void insertNumber(int num) {
-        currentValue = currentValue + Integer.toString(num);
-        setDisplay(displayString + currentValue);
+        if (currentValue.equals("0") && num == 0) {
+            // Ignore leading zeros
+            return;
+        } else if (currentValue.equals("0")) {
+            // Replace leading zero with the new number
+            currentValue = Integer.toString(num);
+        } else {
+            currentValue = currentValue + Integer.toString(num);
+        }
+        updateDisplayOnScreen(displayString + currentValue);
     }
 
-    private void setDisplay(String str) {
-        TextView view = (TextView)findViewById(R.id.displayValue);
-        view.setText(str);
+    private void updateDisplayOnScreen(String str) {
+        displayView.setText(str);
     }
 
     public void onNum1(View view) {
@@ -81,56 +105,42 @@ public class Calculator extends AppCompatActivity {
 
     public void onAdd(View view) {
         lastValue = currentValue;
-        displayString = String.format("%s %s + ", displayString, lastValue);
-        setDisplay(displayString);
+        displayString = String.format("%s%s + ", displayString, lastValue);
+        updateDisplayOnScreen(displayString);
         currentValue = "";
         operation = "add";
     }
 
     public void onSubtract(View view) {
         lastValue = currentValue;
-        displayString = String.format("%s %s - ", displayString, lastValue);
-        setDisplay(displayString);
+        displayString = String.format("%s%s - ", displayString, lastValue);
+        updateDisplayOnScreen(displayString);
         currentValue = "";
         operation = "subtract";
     }
 
     public void onMultiply(View view) {
         lastValue = currentValue;
-        displayString = String.format("%s %s * ", displayString, lastValue);
-        setDisplay(displayString);
+        displayString = String.format("%s%s * ", displayString, lastValue);
+        updateDisplayOnScreen(displayString);
+        currentValue = "";
         operation = "multiply";
     }
 
     public void onDivide(View view) {
         lastValue = currentValue;
-        displayString = String.format("%s %s / ", displayString, lastValue);
-        setDisplay(displayString);
-        operation = "divide";
+        displayString = String.format("%s%s / ", displayString, lastValue);
+        updateDisplayOnScreen(displayString);
+        currentValue = "";
+        operation = "divider";
     }
 
     public void onEquals(View view) {
         if(lastValue.length() > 0 && currentValue.length() > 0) {
-            int val1 = Integer.parseInt(lastValue);
-            int val2 = Integer.parseInt(currentValue);
+            String expressionToEvaluate;
+            expressionToEvaluate = displayView.getText().toString();
 
-            int newValue = 0;
-            switch (operation) {
-                case "add":
-                    newValue = val1 + val2;
-                    break;
-                case "subtract":
-                    newValue = val1 - val2;
-                    break;
-                case "multiply":
-                    newValue = val1 * val2;
-                    break;
-                case "divider":
-                    newValue = val1 / val2;
-            }
-            displayString = (Integer.toString(newValue));
-            currentValue = displayString;
-            setDisplay(displayString);
+
         }
     }
 
@@ -139,6 +149,6 @@ public class Calculator extends AppCompatActivity {
         currentValue = "";
         lastValue = "";
         displayString = "";
-        setDisplay("0");
+        updateDisplayOnScreen("0");
     }
 }
